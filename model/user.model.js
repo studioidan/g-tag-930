@@ -9,6 +9,7 @@ const schema = new mongoose.Schema({
 
 }, {timestamps: true});
 
+// test commit
 
 const User = mongoose.model('User', schema);
 module.exports = User;
