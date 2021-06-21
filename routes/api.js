@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const usersCtrl = require('../ctrl/usersCtrl');
+const unitCtrl = require('../ctrl/unitCtrl');
 // const jwt = require('jsonwebtoken');
 
 
@@ -10,17 +11,26 @@ router.post('/register', usersCtrl.register);
 
 
 // users
-router.get('/users/:id/units',usersCtrl.getUnits);
-router.post('/users/:id/units',usersCtrl.addUnit);
+router.get('/users/', usersCtrl.getUsers);
+router.get('/users/:id/units', usersCtrl.getUnits);
+router.post('/users/:id/units', usersCtrl.addUnit); // should not be in use
+router.post('/users/:id/attach-unit', usersCtrl.attachUnit);
 
 // specific unit
-router.get('/users/:id/units/:unitId',usersCtrl.getUnit);
-router.put('/users/:id/units/:unitId',usersCtrl.updateUnit);
-router.delete('/users/:id/units/:unitId',usersCtrl.deleteUnit);
+router.get('/users/:id/units/:unitId', usersCtrl.getUnit);
+router.put('/users/:id/units/:unitId', usersCtrl.updateUnit);
+router.delete('/users/:id/units/:unitId', usersCtrl.deleteUnit);
 
 
 // units
-router.get('/units',usersCtrl.getUnits);
+router.get('/units', usersCtrl.getUnits);
+
+// scan data
+router.get('/users/:id/units/:unitId/scans', usersCtrl.getUnitScans);
+
+
+router.get('/sample', unitCtrl.sample);
+router.delete('/delete', unitCtrl.deleteData);
 
 
 // router.route('/imageUpload').post(upload.single('image'), mainCtrl.imageUpload);

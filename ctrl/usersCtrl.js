@@ -1,5 +1,6 @@
 const User = require('../model/user.model');
 const Unit = require('../model/unit.model');
+const ScanData = require('../model/scan-data.model');
 
 
 module.exports.login = async (req, res) => {
@@ -51,6 +52,12 @@ module.exports.register = async (req, res) => {
 };
 
 
+module.exports.getUsers = async (req, res) => {
+    res.json(await User.find());
+    // res.json(await Unit.find({user: userId}).populate('user'));
+};
+
+
 module.exports.getUnit = async (req, res) => {
     const userId = req.params.id;
     const unitId = req.params.unitId;
@@ -87,6 +94,35 @@ module.exports.addUnit = async (req, res) => {
         });
 
         res.json({success: true, data: newItem});
+    } catch (e) {
+        res.status(500).json({success: false, message: e})
+    }
+};
+
+
+module.exports.attachUnit = async (req, res) => {
+    const userId = req.params.id;
+    const uid = req.body.unitId; // real unit id (not DB id)
+
+    let user = await User.findById(userId);
+    if (!user) return res.status(400).json({success: false, message: 'user was not found'});
+
+    try {
+
+        // find relevant unit
+        let unit = await Unit.findOne({unitId: uid});
+        if (!unit) {
+            unit = await Unit.create({
+                user: user,
+                unitId: uid
+            });
+
+            return res.json({success: true, data: unit});
+        }
+
+        unit.user = user;
+        await unit.save();
+        res.json({success: true, data: unit});
     } catch (e) {
         res.status(500).json({success: false, message: e})
     }
@@ -152,3 +188,10 @@ module.exports.deleteUnit = async (req, res) => {
         res.status(500).json({success: false, message: e})
     }
 };
+
+
+module.exports.getUnitScans = async (req, res) => {
+    const unitId = req.params.unitId;
+    res.json(await ScanData.find({unitId: (unitId)}));
+};
+
