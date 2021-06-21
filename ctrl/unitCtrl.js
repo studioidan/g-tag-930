@@ -14,7 +14,6 @@ module.exports.deleteData = async (req, res) => {
 
 };
 
-
 module.exports.sample = async (req, res) => {
 
     try {

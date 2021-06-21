@@ -1,6 +1,8 @@
 const User = require('../model/user.model');
 const Unit = require('../model/unit.model');
 const ScanData = require('../model/scan-data.model');
+const jwt = require('jsonwebtoken');
+const config = require('../config');
 
 
 module.exports.login = async (req, res) => {
@@ -17,7 +19,8 @@ module.exports.login = async (req, res) => {
         let user = await User.findOne({email: email, password: password});
         if (!user) return res.status(400).json({success: false, message: 'email or password are incorrect'});
 
-        res.json({success: true, data: user});
+        const token = jwt.sign({userId: user._id, email: email}, config.env.JWT_SECRET);
+        res.json({success: true, data: token});
     } catch (e) {
         res.status(500).json({success: false, message: e})
     }
@@ -67,9 +70,11 @@ module.exports.getUnit = async (req, res) => {
 
 
 module.exports.getUnits = async (req, res) => {
-    const userId = req.params.id;
+    const userId = req.user._id;
+    if (req.user.role === 'admin') {
+        return res.json(await Unit.find({}));
+    }
     res.json(await Unit.find({user: userId}));
-    // res.json(await Unit.find({user: userId}).populate('user'));
 };
 
 
