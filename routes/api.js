@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../model/user.model');
 
 
-
 /*
 tasks
 1) generate token for user
@@ -22,7 +21,7 @@ router.get('/sample', unitCtrl.sample);
 
 // user must be authenticated (secure routes)
 
-router.use( async(req, res, next) =>  {
+router.use(async (req, res, next) => {
     console.log('authentication middleware!');
     let token = req.headers['token'];
     if (!token) {
@@ -46,22 +45,22 @@ router.use( async(req, res, next) =>  {
 
 
 // users
-router.get('/users/', usersCtrl.getUsers);
-router.get('/units', usersCtrl.getUnits);
-router.post('/users/:id/units', usersCtrl.addUnit); // should not be in use
-router.post('/users/:id/attach-unit', usersCtrl.attachUnit);
+router.get('/users', usersCtrl.getUsers);
+router.post('/units', usersCtrl.addUnit); // should not be in use
+router.post('/attach-unit', usersCtrl.attachUnit);
 
-// specific unit
-router.get('/users/:id/units/:unitId', usersCtrl.getUnit);
-router.put('/users/:id/units/:unitId', usersCtrl.updateUnit);
-router.delete('/users/:id/units/:unitId', usersCtrl.deleteUnit);
+// units
+router.get('/units', usersCtrl.getUnits);
+router.get('/units/:unitId', usersCtrl.getUnit);
+router.put('/units/:unitId', usersCtrl.updateUnit);
+router.delete('/units/:unitId', usersCtrl.deleteUnit);
 
 
 // units
 // router.get('/units', usersCtrl.getUnits);
 
 // scan data
-router.get('/users/:id/units/:unitId/scans', usersCtrl.getUnitScans);
+router.get('/units/:unitId/scans', usersCtrl.getUnitScans);
 
 
 router.delete('/delete', unitCtrl.deleteData);
@@ -69,32 +68,8 @@ router.delete('/delete', unitCtrl.deleteData);
 
 // router.route('/imageUpload').post(upload.single('image'), mainCtrl.imageUpload);
 
-/*function authenticateUser(req, res, next) {
-    console.log('authenticateUser');
-    const token = req.headers['authorization'];
-    if (!token) return res.sendStatus(401);
 
-    jwt.verify(token, require('../config').secret, async (err, data) => {
-            if (err) return res.sendStatus(403);
-            try {
-                const userId = data.userId;
-                const user = await User.findById(userId);
-                req.user = user;
-                const ip = req.headers['x-forwarded-for'] ||
-                    req.connection.remoteAddress ||
-                    req.socket.remoteAddress ||
-                    (req.connection.socket ? req.connection.socket.remoteAddress : null);
-                console.log(ip);
-                next();
-            } catch (e) {
-                return res.sendStatus(403);
-            }
-        }
-    );
-    // next();
-}
-
-function authRole(allowedRoles) {
+/*function authRole(allowedRoles) {
     return (req, res, next) => {
         if (allowedRoles.indexOf(req.user.role) === -1) {
             return res.status(401).send('not allowed');

@@ -62,7 +62,6 @@ module.exports.getUsers = async (req, res) => {
 
 
 module.exports.getUnit = async (req, res) => {
-    const userId = req.params.id;
     const unitId = req.params.unitId;
     res.json(await Unit.findById(unitId));
     // res.json(await Unit.find({user: userId}).populate('user'));
@@ -79,7 +78,6 @@ module.exports.getUnits = async (req, res) => {
 
 
 module.exports.addUnit = async (req, res) => {
-    const userId = req.params.id;
     try {
         const color = req.body.color || '#000000';
         const name = req.body.name;
@@ -89,13 +87,13 @@ module.exports.addUnit = async (req, res) => {
             message: 'please enter unit name'
         });
 
-        let user = await User.findById(userId);
-        if (!user) return res.status(400).json({success: false, message: 'user was not found'});
+        // let user = await User.findById(req.user._id);
+        // if (!user) return res.status(400).json({success: false, message: 'user was not found'});
 
         let newItem = await Unit.create({
             color,
             name,
-            user,
+            user: req.user,
         });
 
         res.json({success: true, data: newItem});
@@ -106,11 +104,10 @@ module.exports.addUnit = async (req, res) => {
 
 
 module.exports.attachUnit = async (req, res) => {
-    const userId = req.params.id;
     const uid = req.body.unitId; // real unit id (not DB id)
 
-    let user = await User.findById(userId);
-    if (!user) return res.status(400).json({success: false, message: 'user was not found'});
+    // let user = await User.findById(userId);
+    // if (!user) return res.status(400).json({success: false, message: 'user was not found'});
 
     try {
 
@@ -118,14 +115,14 @@ module.exports.attachUnit = async (req, res) => {
         let unit = await Unit.findOne({unitId: uid});
         if (!unit) {
             unit = await Unit.create({
-                user: user,
+                user: req.user,
                 unitId: uid
             });
 
             return res.json({success: true, data: unit});
         }
 
-        unit.user = user;
+        unit.user = req.user;
         await unit.save();
         res.json({success: true, data: unit});
     } catch (e) {
@@ -162,7 +159,6 @@ module.exports.addUnit = async (req, res) => {
 
 
 module.exports.updateUnit = async (req, res) => {
-    const userId = req.params.id;
     const unitId = req.params.unitId;
     try {
         const color = req.body.color || '#000000';
@@ -183,7 +179,6 @@ module.exports.updateUnit = async (req, res) => {
 
 
 module.exports.deleteUnit = async (req, res) => {
-    const userId = req.params.id;
     const unitId = req.params.unitId;
     try {
 
@@ -196,6 +191,7 @@ module.exports.deleteUnit = async (req, res) => {
 
 
 module.exports.getUnitScans = async (req, res) => {
+    // todo - check that the unit belongs to the connected user (unit.user.id == req.user.id)
     const unitId = req.params.unitId;
     res.json(await ScanData.find({unitId: (unitId)}));
 };
